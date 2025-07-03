@@ -1,8 +1,16 @@
 [project]
 name = "idahelper"
-version = "1.0.0"
+dynamic = ['version']
+authors = [
+    { name = "Yoav Sternberg", email = "yoav.sternberg@gmail.com" },
+]
 description = "standard library for IDA Pro plugins"
 requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 dependencies = []
 
 [project.optional-dependencies]
@@ -10,16 +18,29 @@ pac = [
     "ida-netnode>=3.0",
 ]
 
+
+[project.urls]
+Homepage = "https://github.com/yoavst/idahelper"
+Issues = "https://github.com/yoavst/idahelper/issues"
+
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
- [tool.hatch.build.targets.wheel]
-      packages = ["src/idahelper"]
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+version_scheme = "only-version"
+local_scheme = "no-local-version"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/idahelper"]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.12.1",
+    "ruff>=0.12.2",
+    "vermin>=1.6.0",
 ]
 
 [tool.ruff]
