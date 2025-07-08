@@ -136,6 +136,20 @@ def get_member(tif: tinfo_t, offset: int) -> udm_t | None:
     return udm
 
 
+def get_member_recursive(tif: tinfo_t, offset: int) -> tuple[tinfo_t, udm_t] | None:
+    """Get member of a struct at given offset. If it comes from the base class, return it with the base class type."""
+    t: tinfo_t | None = tif
+    while t is not None:
+        udm = get_member(t, offset)
+        if udm is None:
+            return None
+        elif not udm.is_baseclass():
+            return t, udm
+
+        t = get_parent_class(t)
+    return None
+
+
 def get_parent_classes(tif: tinfo_t, including_current_type: bool = False) -> list[tinfo_t] | None:
     """Get parent classes of a struct. For example: IOService -> [IORegistryEntry, OSObject]"""
     classes: list[tinfo_t] = []

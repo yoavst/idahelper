@@ -60,8 +60,16 @@ def get_segments(cls: str | None = None) -> list[Segment]:
 
 
 def get_segment_by_name(name: str) -> Segment | None:
-    """Get segment with the given name or none if non existant"""
+    """Get a segment with the given name or none if non-existent"""
     seg = ida_segment.get_segm_by_name(name)
+    if seg is None:
+        return None
+    return Segment.from_segment(seg)
+
+
+def get_segment_by_ea(ea: int) -> Segment | None:
+    """Get a segment that contains the given EA or None if it does not exist"""
+    seg = ida_segment.getseg(ea)
     if seg is None:
         return None
     return Segment.from_segment(seg)
