@@ -9,6 +9,8 @@ from ida_typeinf import func_type_data_t, tinfo_t, udm_t, udt_type_data_t
 
 from idahelper.xrefs import get_xrefs_to
 
+BOOL = tinfo_t(ida_typeinf.BT_BOOL)
+
 
 def from_c_type(c_type: str) -> tinfo_t | None:
     """Given a C type string, return matching `tinfo_t`"""

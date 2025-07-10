@@ -25,9 +25,9 @@ def iterate_functions(start: int | None = None, end: int | None = None) -> Itera
     func = chunk
 
     while func and func.start_ea < end:
-        startea = func.start_ea
+        start_ea = func.start_ea
         yield func
-        func = ida_funcs.get_next_func(startea)
+        func = ida_funcs.get_next_func(start_ea)
 
 
 def get_start_of_function(ea: int) -> int | None:
