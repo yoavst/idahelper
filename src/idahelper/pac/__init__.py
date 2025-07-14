@@ -4,24 +4,33 @@ from .pac_interface import PacClient, VtableXrefTuple
 
 
 class StubClient(PacClient):
+    def __init__(self, is_local: bool = False):
+        self._is_local = is_local
+        self.__client: PacClient | None = None
+
+    def _client(self) -> PacClient:
+        if self.__client is not None:
+            return self.__client
+
+        self.ensure_pac_plugin_installed()
+        if self._is_local:
+            from .local_pac_client import LocalPacClient
+
+            self.__client = LocalPacClient()
+        else:
+            from .remote_pac_client import RemotePacClient
+
+            self.__client = RemotePacClient()
+        return self.__client
+
     def _pac_candidates_from_movk(self, movk_ea: int) -> list[VtableXrefTuple]:
-        raise ValueError("PAC plugin not installed, cannot query PAC candidates from movk")
+        return self._client()._pac_candidates_from_movk(movk_ea)
 
     def pac_xrefs_to_func(self, func_ea: int) -> list[int]:
-        raise ValueError("PAC plugin not installed, cannot query PAC xrefs to func")
+        return self._client().pac_xrefs_to_func(func_ea)
 
 
-local: PacClient
+local: PacClient = StubClient(is_local=True)
 """PAC client that initiates a new instance of PACExplorer plugin. Slow startup but faster queries"""
-remote: PacClient
+remote: PacClient = StubClient(is_local=False)
 """PAC client that communicate with the running PAC plugin. Immediate startup but slower queries"""
-
-if not PacClient.is_pac_plugin_installed():
-    print("[Warning] PAC plugin not installed, cannot use PAC features")
-    local = remote = StubClient()
-else:
-    from .local_pac_client import LocalPacClient
-    from .remote_pac_client import RemotePacClient
-
-    local = LocalPacClient()
-    remote = RemotePacClient()
