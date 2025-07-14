@@ -10,6 +10,7 @@ from ida_typeinf import func_type_data_t, tinfo_t, udm_t, udt_type_data_t
 from idahelper.xrefs import get_xrefs_to
 
 BOOL = tinfo_t(ida_typeinf.BT_BOOL)
+VOID = tinfo_t(ida_typeinf.BT_VOID)
 
 
 def from_c_type(c_type: str) -> tinfo_t | None:
@@ -17,7 +18,7 @@ def from_c_type(c_type: str) -> tinfo_t | None:
     tif = tinfo_t()
     if c_type == "void":
         tif.create_simple_type(ida_typeinf.BT_VOID)
-        return tif
+        return VOID
     else:
         # noinspection PyTypeChecker
         if (
@@ -152,7 +153,7 @@ def get_member_recursive(tif: tinfo_t, offset: int) -> tuple[tinfo_t, udm_t] | N
     return None
 
 
-def get_parent_classes(tif: tinfo_t, including_current_type: bool = False) -> list[tinfo_t] | None:
+def get_parent_classes(tif: tinfo_t, including_current_type: bool = False) -> list[tinfo_t]:
     """Get parent classes of a struct. For example: IOService -> [IORegistryEntry, OSObject]"""
     classes: list[tinfo_t] = []
     if including_current_type:
