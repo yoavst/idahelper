@@ -2,6 +2,7 @@ import dataclasses
 from typing import TypeVar
 
 import ida_hexrays
+import ida_nalt
 import ida_typeinf
 import idaapi
 from ida_funcs import func_t
@@ -93,6 +94,11 @@ def apply_tinfo_to_func(tif: tinfo_t, func: func_t) -> bool:
 def apply_tinfo_to_ea(tif: tinfo_t, ea: int) -> bool:
     """Apply typing info to the given ea`"""
     return idaapi.apply_tinfo(ea, tif, idaapi.TINFO_DEFINITE)
+
+
+def apply_tinfo_to_call(tif: tinfo_t, call_ea: int) -> bool:
+    """Apply typing info to the given call instruction"""
+    return ida_nalt.set_op_tinfo(call_ea, 0, tif)
 
 
 @dataclasses.dataclass
