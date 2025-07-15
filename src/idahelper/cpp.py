@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 
 import ida_funcs
@@ -26,6 +26,14 @@ def demangle_name_only(symbol: str, strict: bool = False) -> str | None:
 
 def demangle_class_only(symbol: str, strict: bool = False) -> str | None:
     """Demangle cpp symbol, return name of the class"""
+    class_and_name = demangle_class_and_name(symbol, strict)
+    if class_and_name is None:
+        return None
+    return class_and_name[0]
+
+
+def demangle_class_and_name(symbol: str, strict: bool = False) -> tuple[str, str] | None:
+    """Demangle cpp symbol, return tuple of class name and method"""
     name = demangle_name_only(symbol, strict)
     if name is None:
         return None
@@ -33,7 +41,7 @@ def demangle_class_only(symbol: str, strict: bool = False) -> str | None:
     last_double_colon = name.rfind("::")
     if last_double_colon == -1:
         return None
-    return name[:last_double_colon]
+    return name[:last_double_colon], name[last_double_colon + 2 :]
 
 
 def vtable_location_from_type(cpp_type: tinfo_t) -> int | None:
@@ -43,23 +51,36 @@ def vtable_location_from_type(cpp_type: tinfo_t) -> int | None:
     return memory.ea_from_name(f"__ZTV{len(type_name)}{type_name}")
 
 
-def type_from_vtable_name(symbol: str) -> tinfo_t | None:
-    """Given the name of the vtable symbol, return the cpp type"""
+def class_name_from_vtable_name(symbol: str) -> str | None:
+    """Given the name of the vtable symbol, return the class name"""
     vtable_demangled_name = demangle(symbol)
     if vtable_demangled_name and vtable_demangled_name.startswith("`vtable for'"):
-        cls_name = vtable_demangled_name[12:]
-        return tif.from_struct_name(cls_name)
+        return vtable_demangled_name[12:]
     else:
         return None
+
+
+def type_from_vtable_name(symbol: str) -> tinfo_t | None:
+    """Given the name of the vtable symbol, return the cpp type"""
+    cls_name = class_name_from_vtable_name(symbol)
+    return tif.from_struct_name(cls_name) if cls_name else None
+
+
+def iterate_vtables(skip_metaclass: bool = True) -> Iterator[tuple[str, int]]:
+    """Iterate over all vtables in the database, yielding class name and vtable ea."""
+    for ea, name in memory.names():
+        cls = class_name_from_vtable_name(name)
+        if cls is not None and (skip_metaclass or not cls.endswith("::MetaClass")):
+            yield cls, ea
 
 
 def get_all_cpp_classes() -> list[tuple[tinfo_t, int]]:
     """Return map between cpp type to its vtable ea"""
     d: list[tuple[tinfo_t, int]] = []
-    for ea, name in memory.names():
-        cls = type_from_vtable_name(name)
-        if cls is not None and not cls.dstr().endswith("::MetaClass"):
-            d.append((cls, ea))
+    for class_name, vtable_ea in iterate_vtables():
+        cls = tif.from_struct_name(class_name)
+        if cls is not None:
+            d.append((cls, vtable_ea))
     return d
 
 
@@ -72,9 +93,12 @@ class VTableItem:
     demangled_func_name: str
 
 
-def iterate_vtable(vtable_ea: int, skip_reserved: bool = True) -> Iterable[VTableItem]:
+def iterate_vtable(vtable_ea: int, skip_reserved: bool = True, raise_on_error: bool = False) -> Iterable[VTableItem]:
     """Iterate over the vtable at `vtable_ea`, yielding VTableItem for each function."""
     if memory.qword_from_ea(vtable_ea) != 0:
+        error_msg = f"Expected null on offset 0, received: {memory.qword_from_ea(vtable_ea):X}"
+        if raise_on_error:
+            raise MemoryError()
         return
 
     current_ea = vtable_ea + 2 * memory.PTR_SIZE
@@ -83,11 +107,14 @@ def iterate_vtable(vtable_ea: int, skip_reserved: bool = True) -> Iterable[VTabl
         if ida_funcs.get_func(func_addr):
             mangled_name = memory.name_from_ea(func_addr)
         elif not (mangled_name := memory.name_from_imported_ea(func_addr)):
-            print(f"[Error] {vtable_ea:X}: Failed to get func from vtable at {current_ea:X}. Data: {func_addr:X}")
+            error_msg = f"{vtable_ea:X}: Failed to get func from vtable at {current_ea:X}. Data: {func_addr:X}"
+            if raise_on_error:
+                raise MemoryError(error_msg)
+            print(f"[Error] {error_msg}")
             return
 
         demangled_func_name = demangle_name_only(mangled_name, strict=False) or ""
-        if not (skip_reserved and demangled_func_name and demangled_func_name.startswith("_RESERVED")):
+        if not skip_reserved or "::_RESERVED" not in demangled_func_name:
             yield VTableItem(
                 index=i,
                 vtable_offset=current_ea - vtable_ea,

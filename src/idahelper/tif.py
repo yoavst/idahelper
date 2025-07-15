@@ -61,9 +61,15 @@ def from_struct_name(name: str) -> tinfo_t | None:
 
 def from_func(func: func_t) -> tinfo_t | None:
     """Given a function, return matching `tinfo_t`"""
+    return from_ea(func.start_ea)
+
+
+def from_ea(ea: int) -> tinfo_t | None:
+    """Given ea, return matching `tinfo_t`"""
     tif = tinfo_t()
-    if idaapi.get_tinfo(tif, func.start_ea):
+    if idaapi.get_tinfo(tif, ea):
         return tif
+    return None
 
 
 def get_func_details(func: func_t | tinfo_t) -> func_type_data_t | None:
