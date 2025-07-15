@@ -1,11 +1,14 @@
 import re
 from collections.abc import Iterator
+from functools import cache
 
 import ida_bytes
+import ida_nalt
 import idaapi
 import idautils
 import idc
 
+PTR_SIZE = 8
 RETRY_COUNT = 20
 
 
@@ -68,3 +71,22 @@ def is_user_defined_name(ea: int) -> bool:
 def names() -> Iterator[tuple[int, str]]:
     """Return all the names in the binary"""
     return idautils.Names()
+
+
+@cache
+def imports() -> dict[int, str]:
+    """Return a dictionary of all imports in the binary, mapping EA to import name."""
+    all_imports = {}
+    for i in range(ida_nalt.get_import_module_qty()):
+
+        def import_callback(ea: int, name: str, _ordinal: int):
+            all_imports[ea] = name
+            return True
+
+        ida_nalt.enum_import_names(i, import_callback)
+    return all_imports
+
+
+def name_from_imported_ea(ea: int) -> str | None:
+    """If the ea is an import, return its name."""
+    return imports().get(ea)

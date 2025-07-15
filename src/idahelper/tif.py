@@ -245,6 +245,16 @@ def vtable_type_from_type(tif: tinfo_t) -> tinfo_t | None:
     return from_struct_name(tif.get_type_name() + "_vtbl")
 
 
+def type_from_vtable_type(tif: tinfo_t) -> tinfo_t | None:
+    """Get class type from vtable type"""
+    # noinspection PyUnresolvedReferences
+    if not tif.is_vftable() or not tif.get_type_name().endswith("_vtbl"):
+        return None
+
+    # noinspection PyTypeChecker
+    return from_struct_name(tif.get_type_name()[:-5])
+
+
 def set_udm_type(tif: tinfo_t, udm: udm_t, udm_type: tinfo_t) -> bool:
     """For a `udm` of a `tif`, set its type"""
     index = tif.find_udm(udm, ida_typeinf.STRMEM_OFFSET)
