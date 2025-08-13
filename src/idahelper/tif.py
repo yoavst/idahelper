@@ -263,8 +263,8 @@ def type_from_vtable_type(tif: tinfo_t) -> tinfo_t | None:
 
 def set_udm_type(tif: tinfo_t, udm: udm_t, udm_type: tinfo_t) -> bool:
     """For a `udm` of a `tif`, set its type"""
-    index = tif.find_udm(udm, ida_typeinf.STRMEM_OFFSET)
-    if index == -1:
+    index = get_udm_index(tif, udm)
+    if index is None:
         return False
 
     return tif.set_udm_type(index, udm_type) == 0
@@ -272,11 +272,27 @@ def set_udm_type(tif: tinfo_t, udm: udm_t, udm_type: tinfo_t) -> bool:
 
 def set_udm_name(tif: tinfo_t, udm: udm_t, new_name: str) -> bool:
     """For a `udm` of a `tif`, set its name"""
-    index = tif.find_udm(udm, ida_typeinf.STRMEM_OFFSET)
-    if index == -1:
+    index = get_udm_index(tif, udm)
+    if index is None:
         return False
 
     return tif.rename_udm(index, new_name) == 0
+
+
+def tid_from_udm(tif: tinfo_t, udm: udm_t) -> int | None:
+    """Get the type ID of a `udm` in a `tif`"""
+    index = get_udm_index(tif, udm)
+    if index is None:
+        return None
+    return tif.get_udm_tid(index)
+
+
+def get_udm_index(tif: tinfo_t, udm: udm_t) -> int | None:
+    """Get the index of a `udm` in a `tif`"""
+    index = tif.find_udm(udm, ida_typeinf.STRMEM_OFFSET)
+    if index == -1:
+        return None
+    return index
 
 
 def create_from_c_decl(decl: str) -> bool:

@@ -27,6 +27,15 @@ def strip_casts(expr: cexpr_t) -> cexpr_t:
     return expr
 
 
+def from_cast(expr: cexpr_t, typ: tinfo_t) -> cexpr_t:
+    """Create a cast expression from an existing expression and a type."""
+    cast_expr = cexpr_t()
+    cast_expr.op = ida_hexrays.cot_cast
+    cast_expr.x = cexpr_t(expr)
+    cast_expr.type = typ
+    return cast_expr
+
+
 def from_var(var: var_ref_t) -> cexpr_t:
     """Create a cexpr_t from a var_ref_t."""
     var_t: lvar_t = var.getv()
