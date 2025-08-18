@@ -11,7 +11,6 @@ from idahelper import cpp, instructions, memory
 
 MAX_PREVIOUS_OPCODES_FOR_MOVK_SCAN = 10
 MAX_NEXT_OPCODES_FOR_BLR_SCAN = MAX_PREVIOUS_OPCODES_FOR_MOVK_SCAN
-PACXPLORER_PLUGIN_NAME = "pacxplorer"
 
 
 class VtableXrefTuple(NamedTuple):
@@ -25,18 +24,19 @@ class VtableXrefTuple(NamedTuple):
 class PacClient(ABC):
     """Client for PacExplorer plugin for querying PAC xrefs."""
 
-    @staticmethod
-    def is_pac_plugin_installed() -> bool:
-        """Check if the PAC plugin is installed"""
-        return find_plugin(PACXPLORER_PLUGIN_NAME) is not None
+    plugin_name: str
+    """Name of the plugin to use for PAC xrefs"""
 
-    @staticmethod
-    def ensure_pac_plugin_installed():
+    @classmethod
+    def is_pac_plugin_installed(cls) -> bool:
+        """Check if the PAC plugin is installed"""
+        return find_plugin(cls.plugin_name) is not None
+
+    @classmethod
+    def ensure_pac_plugin_installed(cls):
         """Raise an exception if the PAC plugin is not installed"""
-        if not PacClient.is_pac_plugin_installed():
-            raise AssertionError(
-                "PacExplorer plugin is not installed, please install from https://github.com/yoavst/PacXplorer/tree/patch-1"
-            )
+        if not cls.is_pac_plugin_installed():
+            raise AssertionError("PacXplorer or PacXplorerNG plugin are not installed. Please install it...")
 
     @abstractmethod
     def _pac_candidates_from_movk(self, movk_ea: int) -> list[VtableXrefTuple]:

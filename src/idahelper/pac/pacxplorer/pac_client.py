@@ -1,11 +1,11 @@
-__all__ = ["LocalPacClient"]
+__all__ = ["PacXplorerClient"]
 
 import sys
 from collections import namedtuple
 from typing import Protocol
 
-from .._utils import cache_fast
-from .pac_interface import PacClient, VtableXrefTuple
+from ..._utils import cache_fast
+from ..pac_interface import PacClient, VtableXrefTuple
 
 MovkCodeTuple = namedtuple("MovkCodeTuple", ["pac_tuple", "movk_addr", "trace"])
 
@@ -30,18 +30,19 @@ class PacxplorerPluginProtocol(Protocol):
     def analyze(self, only_cached=False) -> None: ...
 
 
-class LocalPacClient(PacClient):
-    """Client that initiates an instance of the PAC plugin and queries it directly."""
+PLUGIN_NAME_CACHED = "pacxplorer_plugin"
 
-    PLUGIN_NAME_CACHED = "pacxplorer_plugin"
+
+class PacXplorerClient(PacClient):
+    plugin_name = "pacxplorer"
 
     @staticmethod
     @cache_fast
     def _get_pac_plugin() -> PacxplorerPluginProtocol:
         # Cache it somewhere else, to avoid analyzing every time we reload our plugin
         main_module = sys.modules["__main__"]
-        if hasattr(main_module, LocalPacClient.PLUGIN_NAME_CACHED):
-            return getattr(main_module, LocalPacClient.PLUGIN_NAME_CACHED)
+        if hasattr(main_module, PLUGIN_NAME_CACHED):
+            return getattr(main_module, PLUGIN_NAME_CACHED)
 
         PacClient.ensure_pac_plugin_installed()
         # noinspection PyUnresolvedReferences
@@ -51,7 +52,7 @@ class LocalPacClient(PacClient):
         plugin.analyze(False)
         if not plugin.analysis_done:
             raise AssertionError("PacExplorer plugin analysis not done, please run the analysis first")
-        setattr(main_module, LocalPacClient.PLUGIN_NAME_CACHED, plugin)
+        setattr(main_module, PLUGIN_NAME_CACHED, plugin)
         return plugin
 
     def _pac_candidates_from_movk(self, movk_ea: int) -> list[VtableXrefTuple]:
