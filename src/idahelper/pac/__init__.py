@@ -1,4 +1,4 @@
-__all__ = ["PacClient", "VtableXrefTuple"]
+__all__ = ["PacClient", "VtableXrefTuple", "client"]
 
 from .pac_interface import PacClient, VtableXrefTuple
 from .pacxplorer import PacXplorerClient
