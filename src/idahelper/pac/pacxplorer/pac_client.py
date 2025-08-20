@@ -44,7 +44,7 @@ class PacXplorerClient(PacClient):
         if hasattr(main_module, PLUGIN_NAME_CACHED):
             return getattr(main_module, PLUGIN_NAME_CACHED)
 
-        PacClient.ensure_pac_plugin_installed()
+        PacXplorerClient.ensure_pac_plugin_installed()
         # noinspection PyUnresolvedReferences
         import pacxplorer  # pyright: ignore [reportMissingImports]
 
