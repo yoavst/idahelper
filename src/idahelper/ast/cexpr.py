@@ -4,7 +4,7 @@ import idaapi
 from ida_hexrays import carg_t, carglist_t, cexpr_t, cfunc_t, cfuncptr_t, lvar_t, number_format_t, var_ref_t
 from ida_typeinf import tinfo_t
 
-from idahelper import memory
+from idahelper import memory, tif
 from idahelper.ast import lvars
 
 
@@ -91,6 +91,16 @@ def from_assignment(lhs: cexpr_t, rhs: cexpr_t) -> cexpr_t:
     assign_expr.y = rhs
     assign_expr.type = lhs.type
     return assign_expr
+
+
+def from_string(s: str, ea: int = idaapi.BADADDR) -> cexpr_t:
+    """Create a string expression from a const string."""
+    e = cexpr_t()
+    e.ea = ea
+    e.op = ida_hexrays.cot_str
+    e.type = tif.from_c_type("char*")
+    e.string = s
+    return e
 
 
 def call_helper_from_sig(name: str, ret_type: tinfo_t, args: list[cexpr_t | carg_t]) -> cexpr_t:
