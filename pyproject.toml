@@ -14,12 +14,6 @@ classifiers = [
 readme = "README.md"
 dependencies = []
 
-[project.optional-dependencies]
-pac = [
-    "ida-netnode>=3.0",
-]
-
-
 [project.urls]
 Homepage = "https://github.com/yoavst/idahelper"
 Issues = "https://github.com/yoavst/idahelper/issues"

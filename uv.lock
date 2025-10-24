@@ -3,25 +3,8 @@ revision = 2
 requires-python = ">=3.10"
 
 [[package]]
-name = "ida-netnode"
-version = "3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/90/7d/7d7de9ea66675da7f999fceb719082f9661faf19235f698f9d76b8a938cb/ida-netnode-3.0.tar.gz", hash = "sha256:b7e1f2fbf57e3e104ed779d58e5f3f050aa48cce581bab8bf14ccee7a315e32e", size = 5463, upload-time = "2020-07-01T04:00:54.596Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ec/08/ff6868f1677a741b775639bed23bb5342a8665b6567c55a186259cd6e099/ida_netnode-3.0-py3-none-any.whl", hash = "sha256:b9d117703e076c9d219c9337d0b43d935b5102b5cb677835f7c9776a9f0340a5", size = 9899, upload-time = "2020-07-01T04:00:53.553Z" },
-]
-
-[[package]]
 name = "idahelper"
 source = { editable = "." }
-
-[package.optional-dependencies]
-pac = [
-    { name = "ida-netnode" },
-]
 
 [package.dev-dependencies]
 dev = [
@@ -30,8 +13,6 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "ida-netnode", marker = "extra == 'pac'", specifier = ">=3.0" }]
-provides-extras = ["pac"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -62,15 +43,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/51/de/8589fa724590faa057e5a6d171e7f2f6cffe3287406ef40e49c682c07d89/ruff-0.12.2-py3-none-win32.whl", hash = "sha256:369ffb69b70cd55b6c3fc453b9492d98aed98062db9fec828cdfd069555f5f1a", size = 10523823, upload-time = "2025-07-03T16:40:13.203Z" },
     { url = "https://files.pythonhosted.org/packages/94/47/8abf129102ae4c90cba0c2199a1a9b0fa896f6f806238d6f8c14448cc748/ruff-0.12.2-py3-none-win_amd64.whl", hash = "sha256:dca8a3b6d6dc9810ed8f328d406516bf4d660c00caeaef36eb831cf4871b0639", size = 11629831, upload-time = "2025-07-03T16:40:15.478Z" },
     { url = "https://files.pythonhosted.org/packages/e2/1f/72d2946e3cc7456bb837e88000eb3437e55f80db339c840c04015a11115d/ruff-0.12.2-py3-none-win_arm64.whl", hash = "sha256:48d6c6bfb4761df68bc05ae630e24f506755e702d4fb08f08460be778c7ccb12", size = 10735334, upload-time = "2025-07-03T16:40:17.677Z" },
-]
-
-[[package]]
-name = "six"
-version = "1.17.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
 ]
 
 [[package]]

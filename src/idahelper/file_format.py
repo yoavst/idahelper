@@ -12,3 +12,9 @@ def is_kernelcache() -> bool:
 def is_objc() -> bool:
     """Check if the current file is an Objective-C binary"""
     return any(seg.name.startswith("__objc") or "__objc" in seg.name for seg in segments.get_segments())
+
+
+def is_arm64() -> bool:
+    """Check if the current file is an ARM64 binary"""
+    file_type = idaapi.get_file_type_name()
+    return "ARM64" in file_type
